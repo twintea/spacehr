@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.twintea.spacehr.mapper.SalaryMapper">
+
+    <resultMap id="BaseResultMap" type="com.twintea.spacehr.model.Salary">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="basicSalary" column="basic_salary" jdbcType="FLOAT"/>
+            <result property="bonus" column="bonus" jdbcType="FLOAT"/>
+            <result property="lunchSalary" column="lunch_salary" jdbcType="FLOAT"/>
+            <result property="trafficSalary" column="traffic_salary" jdbcType="FLOAT"/>
+            <result property="allSalary" column="all_salary" jdbcType="FLOAT"/>
+            <result property="pensionBase" column="pension_base" jdbcType="FLOAT"/>
+            <result property="pensionper" column="pensionper" jdbcType="FLOAT"/>
+            <result property="createDate" column="create_date" jdbcType="TIMESTAMP"/>
+            <result property="medicalBase" column="medical_base" jdbcType="FLOAT"/>
+            <result property="medicalper" column="medicalper" jdbcType="FLOAT"/>
+            <result property="accumulationFundBase" column="accumulation_fund_base" jdbcType="FLOAT"/>
+            <result property="accumulationFundper" column="accumulation_fundper" jdbcType="FLOAT"/>
+            <result property="name" column="name" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,basicSalary,bonus,
+        lunchSalary,trafficSalary,allSalary,
+        pensionBase,pensionPer,createDate,
+        medicalBase,medicalPer,accumulationFundBase,
+        accumulationFundPer,name
+    </sql>
+</mapper>

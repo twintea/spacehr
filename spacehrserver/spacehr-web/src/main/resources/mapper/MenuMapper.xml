@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.twintea.spacehr.mapper.MenuMapper">
+
+    <resultMap id="BaseResultMap" type="com.twintea.spacehr.model.Menu">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="url" column="url" jdbcType="VARCHAR"/>
+        <result property="path" column="path" jdbcType="VARCHAR"/>
+        <result property="component" column="component" jdbcType="VARCHAR"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="iconCls" column="icon_cls" jdbcType="VARCHAR"/>
+        <result property="parentId" column="parentId" jdbcType="INTEGER"/>
+        <result property="enabled" column="enabled" jdbcType="TINYINT"/>
+        <association property="meta" javaType="com.twintea.spacehr.model.Meta">
+            <result property="keepAlive" column="keep_alive" jdbcType="TINYINT"/>
+            <result property="requireAuth" column="require_auth" jdbcType="TINYINT"/>
+        </association>
+    </resultMap>
+    <resultMap id="Menus2" type="com.twintea.spacehr.model.Menu" extends="BaseResultMap">
+        <collection property="children" ofType="com.twintea.spacehr.model.Menu">
+            <id property="id" column="id2" jdbcType="INTEGER"/>
+            <result property="url" column="url2" jdbcType="VARCHAR"/>
+            <result property="path" column="path2" jdbcType="VARCHAR"/>
+            <result property="component" column="component2" jdbcType="VARCHAR"/>
+            <result property="name" column="name2" jdbcType="VARCHAR"/>
+            <result property="iconCls" column="iconCls2" jdbcType="VARCHAR"/>
+            <result property="parentId" column="parentId2" jdbcType="INTEGER"/>
+            <result property="enabled" column="enabled2" jdbcType="TINYINT"/>
+            <association property="meta" javaType="com.twintea.spacehr.model.Meta">
+                <result property="keepAlive" column="keepAlive2" jdbcType="TINYINT"/>
+                <result property="requireAuth" column="requireAuth2" jdbcType="TINYINT"/>
+            </association>
+        </collection>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id
+        ,url,path,
+        component,name,icon_cls,
+        keep_alive,require_auth,parentId,
+        enabled
+    </sql>
+    <select id="getMenuByHrId" resultMap="Menus2">
+        select DISTINCT m1.*,
+                        m2.id          as id2,
+                        m2.component   as component2,
+                        m2.enabled     as enabled2,
+                        m2.icon_cls     as iconCls2,
+                        m2.keep_alive   as keepAlive2,
+                        m2.`name`      as name2,
+                        m2.parentId    as parentId2,
+                        m2.require_auth as requireAuth2,
+                        m2.path        as path2
+        from menu m1,
+             menu m2,
+             hr_role hrr,
+             menu_role mr
+        where m1.id = m2.parentId
+          and hrr.rid = mr.rid
+          and hrr.hrid = #{hrid}
+          and mr.mid = m2.id
+          and m2.enabled = 1
+    </select>
+
+    <resultMap id="MenuWithRole" extends="BaseResultMap" type="com.twintea.spacehr.model.Menu">
+        <collection property="roles" ofType="com.twintea.spacehr.model.Role">
+            <id property="id" column="rid" jdbcType="INTEGER"/>
+            <result property="name" column="rname" jdbcType="VARCHAR"/>
+            <result property="namezh" column="rnameZh" jdbcType="VARCHAR"/>
+        </collection>
+    </resultMap>
+    <select id="getAllMenuWithRoles" resultMap="MenuWithRole">
+        select m.*, r.id as rid, r.`name` as rname, r.namezh as rnamezh
+        from menu m,
+             menu_role mr,
+             role r
+        where m.id = mr.mid
+          and mr.rid = r.id
+        order by m.id
+    </select>
+    <resultMap id="MenuWithChildren" type="com.twintea.spacehr.model.Menu" extends="BaseResultMap">
+        <id property="id" column="id1"/>
+        <result property="name" column="name1"/>
+        <collection property="children" ofType="com.twintea.spacehr.model.Menu">
+            <id property="id" column="id2"/>
+            <result property="name" column="name2"/>
+        <collection property="children" ofType="com.twintea.spacehr.model.Menu">
+            <id property="id" column="id3"/>
+            <result property="name" column="name3"/>
+        </collection>
+        </collection>
+    </resultMap>
+    <select id="getAllMenus" resultMap="MenuWithChildren">
+        select m1.id as id1, m1.`name` as name1, m2.id as id2, m2.name as name2, m3.id as id3, m3.name as name3
+        from menu m1,
+             menu m2,
+             menu m3
+        where m1.id = m2.parentId
+          and m2.id = m3.parentId
+          and m3.enabled = 1
+        order by m1.id, m2.id, m3.id
+    </select>
+</mapper>

@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.twintea.spacehr.mapper.EmployeeMapper">
+
+    <resultMap id="BaseResultMap" type="com.twintea.spacehr.model.Employee">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="gender" column="gender" jdbcType="CHAR"/>
+        <result property="birthday" column="birthday" jdbcType="DATE"/>
+        <result property="idCard" column="id_card" jdbcType="CHAR"/>
+        <result property="wedlock" column="wedlock" jdbcType="OTHER"/>
+        <result property="nationId" column="nation_id" jdbcType="INTEGER"/>
+        <result property="nativePlace" column="native_place" jdbcType="VARCHAR"/>
+        <result property="politicId" column="politic_id" jdbcType="INTEGER"/>
+        <result property="email" column="email" jdbcType="VARCHAR"/>
+        <result property="phone" column="phone" jdbcType="VARCHAR"/>
+        <result property="address" column="address" jdbcType="VARCHAR"/>
+        <result property="departmentId" column="department_id" jdbcType="INTEGER"/>
+        <result property="jobLevelId" column="job_level_id" jdbcType="INTEGER"/>
+        <result property="posId" column="pos_id" jdbcType="INTEGER"/>
+        <result property="engageForm" column="engage_form" jdbcType="VARCHAR"/>
+        <result property="tiptopDegree" column="tiptop_degree" jdbcType="OTHER"/>
+        <result property="specialty" column="specialty" jdbcType="VARCHAR"/>
+        <result property="school" column="school" jdbcType="VARCHAR"/>
+        <result property="beginDate" column="begin_date" jdbcType="DATE"/>
+        <result property="workState" column="work_state" jdbcType="OTHER"/>
+        <result property="workId" column="work_iD" jdbcType="CHAR"/>
+        <result property="contractTerm" column="contract_term" jdbcType="DOUBLE"/>
+        <result property="conversionTime" column="conversion_time" jdbcType="DATE"/>
+        <result property="notWorkDate" column="not_work_date" jdbcType="DATE"/>
+        <result property="beginContract" column="begin_contract" jdbcType="DATE"/>
+        <result property="endContract" column="end_contract" jdbcType="DATE"/>
+        <result property="workAge" column="work_age" jdbcType="INTEGER"/>
+        <result property="delFlag" column="del_flag" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id
+        ,name,gender,
+        birthday,id_card,wedlock,
+        nation_id,native_place,politic_id,
+        email,phone,address,
+        department_id,job_level_id,pos_id,
+        engage_form,tiptop_degree,specialty,
+        school,begin_date,work_state,
+        work_iD,contract_term,conversion_time,
+        not_work_date,begin_contract,end_contract,
+        work_age,del_flag
+    </sql>
+    <insert id="insertBatch">
+        insert into employee( name, gender,
+        birthday, id_card, wedlock,
+        nation_id, native_place, politic_id,
+        email, phone, address,
+        department_id, job_level_id, pos_id,
+        engage_form, tiptop_degree, specialty,
+        school, begin_date, work_state,
+        work_iD, contract_term, conversion_time,
+        not_work_date, begin_contract, end_contract,
+        work_age)
+        values
+        <foreach collection="empList" separator="," item="emp">
+            (#{emp.name,jdbcType=VARCHAR}, #{emp.gender,jdbcType=CHAR}, #{emp.birthday,jdbcType=DATE},
+            #{emp.idCard,jdbcType=CHAR}, #{emp.wedlock,jdbcType=OTHER}, #{emp.nationId,jdbcType=INTEGER},
+            #{emp.nativePlace,jdbcType=VARCHAR}, #{emp.politicId,jdbcType=INTEGER}, #{emp.email,jdbcType=VARCHAR},
+            #{emp.phone,jdbcType=VARCHAR}, #{emp.address,jdbcType=VARCHAR}, #{emp.departmentId,jdbcType=INTEGER},
+            #{emp.jobLevelId,jdbcType=INTEGER}, #{emp.posId,jdbcType=INTEGER}, #{emp.engageForm,jdbcType=VARCHAR},
+            #{emp.tiptopDegree,jdbcType=OTHER}, #{emp.specialty,jdbcType=VARCHAR}, #{emp.school,jdbcType=VARCHAR},
+            #{emp.beginDate,jdbcType=DATE}, #{emp.workState,jdbcType=OTHER}, #{emp.workId,jdbcType=CHAR},
+            #{emp.contractTerm,jdbcType=DOUBLE}, #{emp.conversionTime,jdbcType=DATE}, #{emp.notWorkDate,jdbcType=DATE},
+            #{emp.beginContract,jdbcType=DATE}, #{emp.endContract,jdbcType=DATE}, #{emp.workAge,jdbcType=INTEGER})
+        </foreach>
+    </insert>
+    <resultMap id="EmpInfo" type="com.twintea.spacehr.model.Employee" extends="BaseResultMap">
+        <association property="nation" javaType="com.twintea.spacehr.model.Nation">
+            <id property="id" column="nid"/>
+            <result property="name" column="nname"/>
+        </association>
+        <association property="joblevel" javaType="com.twintea.spacehr.model.Joblevel">
+            <id property="id" column="jid"/>
+            <result property="name" column="jname"/>
+        </association>
+        <association property="department" javaType="com.twintea.spacehr.model.Department">
+            <id property="id" column="did"/>
+            <result property="name" column="dname"/>
+        </association>
+        <association property="politicsstatus" javaType="com.twintea.spacehr.model.Politicsstatus">
+            <id property="id" column="pid"/>
+            <result property="name" column="pname"/>
+        </association>
+        <association property="position" javaType="com.twintea.spacehr.model.Position">
+            <id property="id" column="posid"/>
+            <result property="name" column="posname"/>
+        </association>
+
+    </resultMap>
+    <select id="getAllEmp" resultMap="EmpInfo">
+        select e.*,
+        n.id as nid,
+        n.name as nname,
+        p.id as pid,
+        p.name as pname,
+        d.id as did,
+        d.name as dname,
+        j.id as jid,
+        j.name as jname,
+        pos.id as posid,
+        pos.name as posname
+        from employee e,
+        nation n,
+        politicsstatus p,
+        department d,
+        joblevel j,
+        position pos
+        where e.del_flag=1
+        and e.nation_id = n.id
+        and e.politic_id = p.id
+        and e.department_id = d.id
+        and e.job_level_id = j.id
+        and e.pos_id = pos.id
+        <if test="employee.name !=null and employee.name!=''">
+            and e.name like concat('%',#{employee.name},'%')
+        </if>
+        <if test="employee.nationId !=null">
+            and e.nation_id = #{employee.nationId}
+        </if>
+        <if test="employee.politicId !=null ">
+            and e.politic_id = #{employee.politicId}
+        </if>
+        <if test="employee.departmentId !=null ">
+            and e.department_id = #{employee.departmentId}
+        </if>
+        <if test="employee.jobLevelId !=null ">
+            and e.job_level_id = #{employee.jobLevelId}
+        </if>
+        <if test="employee.posId !=null ">
+            and e.pos_id = #{employee.posId}
+        </if>
+        <if test="employee.engageForm !=null and employee.engageForm!=''">
+            and e.engage_form = #{employee.engageForm}
+        </if>
+        <if test="employee.workId !=null and employee.workId!=''">
+            and e.work_id = #{employee.workId}
+        </if>
+        <if test="begin_date !=null and begin_date!= '' ">
+            and e.begin_date between
+            #{dates[0]} and #{dates[1]}
+        </if>
+
+
+    </select>
+    <select id="getMaxWorkId" resultType="java.lang.Integer">
+        select max(work_id)
+        from employee
+    </select>
+    <select id="getEmpList" resultMap="EmpInfo">
+        select e.*,
+               n.id     as nid,
+               n.name   as nname,
+               p.id     as pid,
+               p.name   as pname,
+               d.id     as did,
+               d.name   as dname,
+               j.id     as jid,
+               j.name   as jname,
+               pos.id   as posid,
+               pos.name as posname
+        from employee e,
+             nation n,
+             politicsstatus p,
+             department d,
+             joblevel j,
+             position pos
+        where e.del_flag = 1
+          and e.nation_id = n.id
+          and e.politic_id = p.id
+          and e.department_id = d.id
+          and e.job_level_id = j.id
+          and e.pos_id = pos.id
+    </select>
+    <select id="getEmpWithPropertiesNameById" resultMap="EmpInfo">
+        select e.*,
+               n.id     as nid,
+               n.name   as nname,
+               p.id     as pid,
+               p.name   as pname,
+               d.id     as did,
+               d.name   as dname,
+               j.id     as jid,
+               j.name   as jname,
+               pos.id   as posid,
+               pos.name as posname
+        from employee e,
+             nation n,
+             politicsstatus p,
+             department d,
+             joblevel j,
+             position pos
+        where e.del_flag = 1
+          and e.nation_id = n.id
+          and e.politic_id = p.id
+          and e.department_id = d.id
+          and e.job_level_id = j.id
+          and e.pos_id = pos.id
+          and e.id = #{id}
+    </select>
+</mapper>

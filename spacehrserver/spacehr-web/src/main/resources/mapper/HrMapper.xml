@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.twintea.spacehr.mapper.HrMapper">
+
+    <resultMap id="BaseResultMap" type="com.twintea.spacehr.model.Hr">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="phone" column="phone" jdbcType="CHAR"/>
+        <result property="telephone" column="telephone" jdbcType="VARCHAR"/>
+        <result property="address" column="address" jdbcType="VARCHAR"/>
+        <result property="enabled" column="enabled" jdbcType="TINYINT"/>
+        <result property="username" column="username" jdbcType="VARCHAR"/>
+        <result property="password" column="password" jdbcType="VARCHAR"/>
+        <result property="userface" column="userface" jdbcType="VARCHAR"/>
+        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+        <result property="delFlag" column="del_flag" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id
+        ,name,phone,
+        telephone,address,enabled,
+        username,password,userface,
+        remark
+    </sql>
+    <select id="getRolesByHrId" resultType="com.twintea.spacehr.model.Role">
+        select r.*
+        from hr_role hr,
+             role r
+        where hr.rid = r.id
+          and hr.hrid = #{id}
+    </select>
+
+    <resultMap id="HrsWithRole" type="com.twintea.spacehr.model.Hr" extends="BaseResultMap">
+        <collection property="roles" ofType="com.twintea.spacehr.model.Role">
+            <id column="rid" property="id"/>
+            <result column="rname" property="name"/>
+            <result column="rnamezh" property="namezh"/>
+        </collection>
+    </resultMap>
+
+    <select id="getAllHrs" resultMap="HrsWithRole">
+        select hr.id,
+               hr.name,
+               hr.phone,
+               hr.telephone,
+               hr.address,
+               hr.enabled,
+               hr.username,
+               hr.userface,
+               hr.remark,
+               r.id     as rid,
+               r.name   as rname,
+               r.namezh as rnamezh
+        from hr
+                 left join hr_role hrr on hr.id = hrr.hrid
+                 left join role r on r.id = hrr.rid
+        where hr.id !=#{id} and hr.del_flag =1
+        <if test="keyWords!=null">
+            and hr.name like concat('%',#{keyWords},'%')
+        </if>
+        order by hr.id
+    </select>
+    <select id="getHrsExcludeCurrentHr" resultType="com.twintea.spacehr.model.Hr">
+        select * from hr where id != #{id} and del_flag =1
+    </select>
+</mapper>

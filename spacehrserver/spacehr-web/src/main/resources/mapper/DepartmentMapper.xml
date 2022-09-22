@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.twintea.spacehr.mapper.DepartmentMapper">
+
+    <resultMap id="BaseResultMap" type="com.twintea.spacehr.model.Department">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="parentid" column="parentid" jdbcType="INTEGER"/>
+        <result property="depPath" column="dep_path" jdbcType="VARCHAR"/>
+        <result property="enabled" column="enabled" jdbcType="TINYINT"/>
+        <result property="isParent" column="is_parent" jdbcType="TINYINT"/>
+        <result property="delFlag" column="del_flag" jdbcType="TINYINT"/>
+    </resultMap>
+    <resultMap id="DeptWithChildren" type="com.twintea.spacehr.model.Department" extends="BaseResultMap">
+        <collection property="children" ofType="com.twintea.spacehr.model.Department"
+                    select="com.twintea.spacehr.mapper.DepartmentMapper.getAllDeptWithChildren" column="id">
+        </collection>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id
+        ,name,parentid,
+        de_path,enabled,is_parent,del_flag
+    </sql>
+    <select id="getAllDeptWithChildren" resultMap="DeptWithChildren">
+        select *
+        from department
+        where parentid = #{parentId} and del_flag=1
+    </select>
+</mapper>
